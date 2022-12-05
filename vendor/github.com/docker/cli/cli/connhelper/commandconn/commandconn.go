@@ -59,7 +59,10 @@ func New(ctx context.Context, cmd string, args ...string) (net.Conn, error) {
 	}
 	c.localAddr = dummyAddr{network: "dummy", s: "dummy-0"}
 	c.remoteAddr = dummyAddr{network: "dummy", s: "dummy-1"}
-	return &c, c.cmd.Start()
+
+	startErr := c.cmd.Start()
+	fmt.Println("New connection: PID", c.cmd.Process.Pid)
+	return &c, startErr
 }
 
 // commandConn implements net.Conn
@@ -223,6 +226,7 @@ func (c *commandConn) Write(p []byte) (int, error) {
 }
 
 func (c *commandConn) Close() error {
+	fmt.Println("Close connection: PID", c.cmd.Process.Pid)
 	var err error
 	if err = c.CloseRead(); err != nil {
 		logrus.Warnf("commandConn.Close: CloseRead: %v", err)
